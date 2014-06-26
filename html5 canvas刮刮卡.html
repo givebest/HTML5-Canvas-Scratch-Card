@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-cn">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />  
+  <title>html5 canvas刮刮卡</title>
+  <style type="text/css">
+	body{
+		-moz-user-select:none;
+		-webkit-user-select:none;
+		user-select:none;
+	}
+	#canvasGGK{
+		margin:0 auto;
+		position:relative;
+		height:150px;
+		width:300px;
+		border:2px solid #B6B6B6;
+	}
+	#canvasGGK .cgText,
+	#canvasGGK canvas{
+		position:absolute;
+		left:0;
+		top:0;
+	}
+	#canvasGGK .cgText{
+		width:300px;
+		height:150px;
+		text-align:center;
+		line-height:150px;
+		z-index:10;
+		font-size:40px;
+		color:red;
+	}
+	#canvasGGK .cgText a{
+		display:none;
+		width:300px;
+		height:150px;
+		position:absolute;
+		left:0;
+		top:0;
+		text-decoration:none;
+		background-color:#B6B6B6;
+	}
+	.no-canvas #canvasGGK .cgText a{
+		display:block;
+	}
+	#canvasGGK canvas{
+		z-index:11;
+		cursor:url(images/hand.cur), pointer;
+	}
+  </style>
+  <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
+  <script type="text/javascript" src="js/modernizr.custom.16117.js"></script>
+  <script type="text/javascript">
+	//canvas刮刮卡
+		$(function(){
+			var canvas = document.getElementById("canvas");
+			var cggk = document.getElementById("canvasGGK");
+	
+			if (canvas.getContext == null){
+				cggk.onclick = function(){
+					cggk.getElementsByTagName("a")[0].style.display = "none";
+				};
+				return false;	
+			}
+
+			var context = canvas.getContext("2d");
+			var moveing = false;
+			var canvasLeft = 0,
+				canvasTop = 0;
+
+			context.fillStyle = "#B6B6B6";
+			context.fillRect(0, 0, 300, 150);
+			context.globalCompositeOperation = "destination-out";
+
+			context.beginPath();
+			context.arc(40, 40, 20, 0,  Math.PI*2, true);
+			context.fill();
+	
+
+			//获取坐标
+			function reSize(){
+				canvasLeft = cggk.offsetLeft,
+				canvasTop = cggk.offsetTop;	
+			}
+
+
+			//擦除画布
+			function eventMove(e){
+				e.preventDefault();
+				
+				if (moveing){
+					if (e.changedTouches){  
+						e = e.changedTouches[e.changedTouches.length - 1];  
+					} 
+					var x = e.pageX,
+						y = e.pageY;
+					context.beginPath();
+					context.arc(x-canvasLeft, y-canvasTop, 20, 0,  Math.PI*2, true);
+					context.fill();
+			
+				}
+			}
+
+			//鼠标按下、松开
+			function mouseDown(e){
+				e.preventDefault(); 
+				moveing = true;	
+			}
+			function mouseUp(e){
+				e.preventDefault();
+				moveing = false;
+			}
+			
+			//触摸开始、结束
+			function touchStart(e){
+				e.preventDefault(); 
+				moveing = true;	
+			}
+			function touchEnd(e){
+				e.preventDefault(); 
+				moveing = false;	
+			}
+
+			//load、resize获取坐标
+			reSize();
+			$(window).resize(function(){
+				reSize();	
+			});
+			
+			//鼠标事件
+			window.addEventListener("mousedown", mouseDown, true);
+			window.addEventListener("mousemove", eventMove, true);
+			window.addEventListener("mouseup", mouseUp, true);
+
+			
+			//触摸事件
+			window.addEventListener("touchstart", touchStart, true);
+			window.addEventListener("touchmove", eventMove, true);
+			window.addEventListener("touchend", touchEnd, true);
+		});
+
+
+
+
+	function draw1(){
+		canvasLeft = document.getElementById("SSJJ").offsetLeft,
+		canvasTop = document.getElementById("SSJJ").offsetTop;	
+
+		var cs = document.getElementById("canvas1");
+		var ct = cs.getContext("2d");
+		ct.fillStyle = "#999";
+		ct.fillRect(0, 0, 300, 150);
+		ct.globalCompositeOperation = "destination-out";
+
+		cs.ontouchmove = function(e){
+			e.preventDefault();
+			if (e.changedTouches){  
+					e = e.changedTouches[e.changedTouches.length - 1];  
+                } 
+				var x = e.pageX,
+					y = e.pageY;
+				
+			ct.beginPath();
+			ct.arc(x-canvasLeft, y-canvasTop, 30, 0,  Math.PI*2, true);
+			ct.fill();
+
+
+			//ct.clearRect(x-canvasLeft, y-canvasTop, 60, 60);		
+		}
+	}
+	window.addEventListener("load", draw1, true);
+  </script>
+ </head>
+ <body>
+	<h1>1. Canvas刮刮卡(PC/iOS/Android(部分))</h1>
+	<h3>检测浏览器支持canvas，不支持增加点击抽奖</h3>
+	<div id="canvasGGK">
+		<div class="cgText"><b>100</b>元红包
+			<a href="javascript:void(0)">点击抽奖</a>
+		</div>
+		<canvas id="canvas" width="300px" height="150"></canvas>
+	</div>
+	<p id="support"></p>
+	<h1>2. Test移动端(Android)</h1>
+	<h3>上面例子1在Android不支持，这个例子支持，还未搞明白为何如此</h3>
+	<div id="SSJJ">
+	<canvas id="canvas1" width="300px" height="150"></canvas>
+	</div>
+
+
+	
+ </body>
+</html>
